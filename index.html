@@ -1,0 +1,862 @@
+<!DOCTYPE html><html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unidad I - Política Económica</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      /* Tema Clásico (Minimalista y limpio) */
+      --bg-main: #000000;
+      --bg-slide: #ffffff;
+      --bg-dark: #0f172a;
+      --bg-light-gray: #f8fafc;
+      --text-main: #475569;
+      --text-title: #0f172a;
+      --text-white: #ffffff;
+      --accent: #2563eb;
+      --accent-secondary: #1e40af;
+      --card-bg: #f8fafc;
+      --card-border: transparent;
+      --line-color: #2563eb;
+      --question-color: #dc2626;
+      --question-bg: #fef2f2;
+    }
+
+    body.theme-vivid {
+      /* Tema Vívido (Detalles dorados y colores más vivos) */
+      --bg-main: #1a1a2e;
+      --bg-slide: #f4f4f9;
+      --bg-dark: #16213e;
+      --bg-light-gray: #e9ebee;
+      --text-main: #2c3e50;
+      --text-title: #0f3460;
+      --text-white: #ffffff;
+      --accent: #d4af37; /* Dorado */
+      --accent-secondary: #b5952f;
+      --card-bg: #ffffff;
+      --card-border: #d4af37; /* Borde dorado */
+      --line-color: linear-gradient(90deg, #d4af37, #f3e5ab);
+      --question-color: #c0392b;
+      --question-bg: #fadbd8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-main); overflow: hidden; transition: background 0.3s ease; }
+    
+    /* Contenedor principal de la presentación */
+    #presentation-area {
+      width: 1280px;
+      height: 720px;
+      margin: 2vh auto;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg-slide);
+    }
+
+    /* Sistema de diapositivas */
+    .slide-container {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-slide);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in-out;
+      padding: 64px;
+      padding-bottom: 90px; /* Espacio para preguntas */
+    }
+    .slide-container.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Tipografías base */
+    h1, h2, h3, h4 { color: var(--text-title); line-height: 1.2; transition: color 0.3s; }
+    p, li, td { color: var(--text-main); line-height: 1.5; transition: color 0.3s; }
+    
+    /* Utilidades de layout */
+    .flex-grow { flex-grow: 1; }
+    .center-all { display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    .row-center { display: flex; align-items: center; justify-content: center; gap: 32px; width: 100%; height: 100%; }
+    .col-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    /* Colores y fondos */
+    .bg-dark { background: var(--bg-dark); }
+    .text-white { color: var(--text-white) !important; }
+    .text-accent { color: var(--accent) !important; }
+    .bg-light-gray { background: var(--bg-light-gray); }
+    
+    /* Elementos UI */
+    .slide-title { font-size: 36px; font-weight: 800; margin: 0 0 24px 0; max-width: 1100px; }
+    .eyebrow { font-size: 16px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px 0; }
+    .accent-line { width: 64px; height: 4px; background: var(--line-color); margin: 24px 0; border-radius: 2px;}
+    
+    /* Cards y Flip Cards */
+    .card { 
+      background: var(--card-bg); 
+      border: 2px solid var(--card-border);
+      border-radius: 12px; 
+      padding: 32px; 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    body.theme-vivid .card { box-shadow: 0 10px 15px -3px rgba(212, 175, 55, 0.2); }
+    .card-title { font-size: 24px; font-weight: 600; margin: 0 0 16px 0; color: var(--text-title); }
+    .card-text { font-size: 18px; margin: 0; color: var(--text-main); }
+    .card-icon { font-size: 32px; color: var(--accent); margin: 0 0 24px 0; transition: color 0.3s; }
+    
+    /* Flip Card CSS */
+    .flip-card {
+      background-color: transparent;
+      perspective: 1000px; /* Añade perspectiva 3D */
+      flex: 1;
+      min-width: 250px;
+      height: 250px;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1);
+    }
+    .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid var(--card-border);
+    }
+    .flip-card-front {
+      background-color: var(--card-bg);
+      color: var(--text-title);
+    }
+    .flip-card-back {
+      background-color: var(--accent);
+      color: white;
+      transform: rotateY(180deg);
+    }
+    .flip-card-back p { color: white; font-size: 16px; }
+
+    /* Mapas conceptuales (Conectores simples) */
+    .concept-node {
+      background: var(--card-bg);
+      border: 3px solid var(--accent);
+      border-radius: 50%;
+      width: 140px; height: 140px;
+      display: flex; justify-content: center; align-items: center;
+      text-align: center; font-weight: bold; font-size: 18px;
+      z-index: 2; position: relative;
+      color: var(--text-title);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .concept-line {
+      height: 4px; background: var(--accent); flex-grow: 1;
+      position: relative; z-index: 1; margin: 0 -10px;
+    }
+
+    .big-number-val { font-size: 90px; font-weight: 800; color: var(--accent); margin: 0; line-height: 1; transition: color 0.3s; }
+    .big-number-label { font-size: 24px; font-weight: 600; color: var(--text-title); margin: 16px 0 0 0; }
+    
+    .split-layout { display: flex; width: 100%; height: 100%; align-items: center;}
+    .split-half { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px; }
+    
+    .bullet-list { list-style: none; margin: 0; padding: 0; width: 100%; max-width: 800px; }
+    .bullet-item { font-size: 22px; margin: 0 0 24px 0; display: flex; align-items: flex-start; }
+    .bullet-icon { color: var(--accent); margin: 6px 16px 0 0; font-size: 20px; transition: color 0.3s; }
+
+    /* Preguntas Detonantes */
+    .pregunta-detonante {
+      position: absolute;
+      bottom: 24px;
+      left: 64px;
+      right: 200px; /* Deja espacio para botones */
+      background: var(--question-bg);
+      color: var(--question-color);
+      padding: 16px 24px;
+      border-left: 6px solid var(--question-color);
+      border-radius: 4px 12px 12px 4px;
+      font-size: 16px;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+    }
+    .pregunta-detonante i { font-size: 24px; }
+    .pregunta-detonante p { color: inherit; margin: 0; }
+
+    /* UI Flotante (Botones) */
+    .controls-container {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+    .control-btn {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s, background 0.3s;
+    }
+    .control-btn:hover { transform: scale(1.1); background: var(--accent-secondary); }
+    .control-btn:active { transform: scale(0.95); }
+
+    .top-controls {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+    .toggle-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--accent);
+      background: var(--bg-slide);
+      color: var(--accent);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .toggle-btn:hover { background: var(--accent); color: white; }
+    .toggle-btn.active { background: #dc2626; color: white; border-color: #dc2626; } /* Para el láser */
+
+    /* Efecto Láser */
+    #laser-pointer {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      pointer-events: none; /* No interfiere con clics */
+      z-index: 9999;
+      opacity: 0;
+      box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.6);
+      transition: opacity 0.2s;
+      transform: translate(-50%, -50%); /* Centrar en el cursor */
+    }
+    body.laser-active #laser-pointer {
+      opacity: 1;
+    }
+    body.laser-active { cursor: none; /* Ocultar cursor nativo */ }
+
+  </style>
+</head>
+<body>
+
+  <!-- Puntero Láser -->
+  <div id="laser-pointer"></div>
+
+  <div id="presentation-area">
+    
+    <!-- Controles Superiores (Temas y Láser) -->
+    <div class="top-controls">
+      <button class="toggle-btn" id="btn-theme" onclick="toggleTheme()"><i class="fa-solid fa-palette"></i> Modo Vívido</button>
+      <button class="toggle-btn" id="btn-laser" onclick="toggleLaser()"><i class="fa-solid fa-arrow-pointer"></i> Activar Láser</button>
+    </div>
+
+    <!-- Slide 1: Título -->
+    <div class="slide-container bg-dark center-all active" id="slide1">
+      <p class="eyebrow text-accent" style="margin-bottom: 24px;">Módulo 2: Política Económica</p>
+      <h1 class="text-white" style="font-size: 56px; font-weight: 800; text-align: center; max-width: 1000px;">
+        UNIDAD I<br>LA POLÍTICA ECONÓMICA COMO POLÍTICA PÚBLICA
+      </h1>
+      <div class="accent-line"></div>
+      <p style="font-size: 24px; color: #94a3b8; text-align: center; max-width: 800px;">
+        Fines, medios, elaboración y política de empleo
+      </p>
+      <p style="font-size: 16px; color: #64748b; margin-top: 40px;">Octubre de 2026</p>
+    </div>
+
+    <!-- Slide 2: Introducción -->
+    <div class="slide-container" id="slide2">
+      <h2 class="slide-title">Introducción a la Unidad I</h2>
+      <div class="flex-grow row-center">
+        <div class="card">
+          <i class="fa-solid fa-landmark card-icon"></i>
+          <h3 class="card-title">Intervención Estatal</h3>
+          <p class="card-text">Resolución pública ante fallas del mercado y búsqueda del bienestar general.</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-scale-balanced card-icon"></i>
+          <h3 class="card-title">Fines y Medios</h3>
+          <p class="card-text">Decisiones macroeconómicas complejas con impacto social directo.</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-users card-icon"></i>
+          <h3 class="card-title">Dimensión Laboral</h3>
+          <p class="card-text">El empleo como objetivo central y caso práctico de estudio boliviano.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Sección 1 -->
+    <div class="slide-container bg-light-gray center-all" id="slide3">
+      <p class="eyebrow">Bloque Temático</p>
+      <h2 style="font-size: 48px; font-weight: 800; text-align: center; max-width: 900px;">
+        1. La política económica como parte de la política pública
+      </h2>
+      <div class="accent-line"></div>
+    </div>
+
+    <!-- Slide 4: 1.1 -->
+    <div class="slide-container" id="slide4">
+      <h2 class="slide-title">1.1. El Estado frente a los problemas colectivos</h2>
+      <div class="flex-grow row-center">
+        <div class="card" style="background: var(--accent);">
+          <h3 class="text-white" style="font-size: 32px; margin:0;">El Problema Público</h3>
+          <p class="text-white" style="font-size: 20px; margin: 16px 0 0 0; opacity: 0.9;">Construcción social que exige respuesta sostenida del Estado.</p>
+        </div>
+        <div style="flex: 2; padding-left: 32px;">
+          <ul class="bullet-list">
+            <li class="bullet-item"><i class="fa-solid fa-check bullet-icon"></i> <span><b>Acción sostenida:</b> Cadena de decisiones estructuradas.</span></li>
+            <li class="bullet-item"><i class="fa-solid fa-check bullet-icon"></i> <span><b>Interés general:</b> Objetivo definido democráticamente (E. Lahera).</span></li>
+            <li class="bullet-item"><i class="fa-solid fa-check bullet-icon"></i> <span><b>Fallas de mercado:</b> Asimetrías, externalidades y fallas del Estado.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> Si el mercado resuelve por sí solo muchos problemas de asignación, ¿en qué momento un problema deja de ser un asunto privado y se convierte en algo que exige una respuesta del Estado?</p>
+      </div>
+    </div>
+
+    <!-- Slide 5: 1.2 (Uso de Flip Cards) -->
+    <div class="slide-container" id="slide5">
+      <h2 class="slide-title">1.2. La política económica: concepto y objeto</h2>
+      <p style="margin-bottom: 24px; font-style: italic;">Pasa el ratón sobre las tarjetas para descubrir las piezas clave:</p>
+      <div class="flex-grow row-center" style="gap: 20px; flex-wrap: wrap;">
+        <!-- Flip Card 1 -->
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <i class="fa-solid fa-building-columns card-icon"></i>
+              <h3 class="card-title">Autoridad</h3>
+            </div>
+            <div class="flip-card-back">
+              <h3>Competencia</h3>
+              <p style="margin-top:10px;">Capacidad legal para decidir (Ej: BCB, Min. de Economía).</p>
+            </div>
+          </div>
+        </div>
+        <!-- Flip Card 2 -->
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <i class="fa-solid fa-bullseye card-icon"></i>
+              <h3 class="card-title">Objetivos</h3>
+            </div>
+            <div class="flip-card-back">
+              <h3>Fines Macro</h3>
+              <p style="margin-top:10px;">Control de inflación, crecimiento, empleo, equilibrio externo.</p>
+            </div>
+          </div>
+        </div>
+        <!-- Flip Card 3 -->
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <i class="fa-solid fa-sliders card-icon"></i>
+              <h3 class="card-title">Instrumentos</h3>
+            </div>
+            <div class="flip-card-back">
+              <h3>Medios</h3>
+              <p style="margin-top:10px;">Impuestos, gasto, tipo de cambio, tasa de interés.</p>
+            </div>
+          </div>
+        </div>
+        <!-- Flip Card 4 -->
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <i class="fa-solid fa-lightbulb card-icon"></i>
+              <h3 class="card-title">Acción</h3>
+            </div>
+            <div class="flip-card-back">
+              <h3>Deliberada</h3>
+              <p style="margin-top:10px;">Intervención consciente que altera la conducta de agentes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Es la política económica una rama de la economía, de la política o ambas? ¿Quién debería tener la última palabra: el técnico o el representante elegido?</p>
+      </div>
+    </div>
+
+    <!-- Slide 6: 1.3 -->
+    <div class="slide-container" id="slide6">
+      <h2 class="slide-title">1.3. Lo técnico y lo valorativo</h2>
+      <div class="flex-grow split-layout">
+        <div class="split-half card" style="background: var(--bg-light-gray); margin-right: 16px;">
+          <h3 style="font-size: 28px; margin-bottom: 16px;">Economía Positiva</h3>
+          <p style="font-size: 20px; font-weight: 600; color: var(--accent);">Estudia "lo que es"</p>
+          <p style="font-size: 18px; margin-top: 12px;">Mide efectos causales con datos empíricos. Ej: Efecto del alza del diésel en alimentos.</p>
+        </div>
+        <div class="split-half card" style="background: var(--bg-light-gray); margin-left: 16px;">
+          <h3 style="font-size: 28px; margin-bottom: 16px;">Economía Normativa</h3>
+          <p style="font-size: 20px; font-weight: 600; color: var(--accent);">Estudia "lo que debería ser"</p>
+          <p style="font-size: 18px; margin-top: 12px;">Define prioridades basadas en juicios de valor. Ej: ¿Es justo focalizar el subsidio?</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> Cuando una autoridad afirma que no existe alternativa a una medida económica, ¿nos está dando un dato técnico o una opinión política presentada como si fuera un dato?</p>
+      </div>
+    </div>
+
+    <!-- Slide 7: 1.4 -->
+    <div class="slide-container" id="slide7">
+      <h2 class="slide-title">1.4. Marco constitucional boliviano (CPE 2009)</h2>
+      <div class="flex-grow row-center">
+        <div class="card">
+          <i class="fa-solid fa-book-open card-icon"></i>
+          <h3 class="card-title">Economía Plural</h3>
+          <p class="card-text">Articulación estatal, privada, comunitaria y cooperativa. El Estado dirige el desarrollo integral (Art. 306, 311).</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-sitemap card-icon"></i>
+          <h3 class="card-title">Competencias</h3>
+          <p class="card-text">Política macroeconómica es <b>privativa</b> del nivel central. Entidades territoriales actúan en su marco.</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-hand-holding-dollar card-icon"></i>
+          <h3 class="card-title">Valores y Redistribución</h3>
+          <p class="card-text">Orientación a erradicar pobreza y desigualdad; recursos naturales del pueblo boliviano (Art. 313).</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> Si la Constitución ha fundado modelos divergentes (antes y después de 2025), ¿qué nos dice eso sobre el alcance real de una constitución económica?</p>
+      </div>
+    </div>
+
+    <!-- Slide 8: Sección 2 -->
+    <div class="slide-container bg-light-gray center-all" id="slide8">
+      <p class="eyebrow">Bloque Temático</p>
+      <h2 style="font-size: 48px; font-weight: 800; text-align: center; max-width: 900px;">
+        2. Fines y medios de la política económica
+      </h2>
+      <div class="accent-line"></div>
+    </div>
+
+    <!-- Slide 9: 2.1 (Pirámide/Jerarquía) -->
+    <div class="slide-container" id="slide9">
+      <h2 class="slide-title">2.1. Fines, objetivos y metas</h2>
+      <div class="flex-grow split-layout">
+        <div class="split-half" style="align-items: center;">
+          <div style="background: var(--bg-dark); color: white; padding: 16px; width: 100%; text-align:center; border-radius: 8px 8px 0 0; margin-bottom: 2px;">
+            <h3>Fines</h3><p>Aspiraciones sociales (Bienestar, Vivir Bien)</p>
+          </div>
+          <div style="background: var(--accent); color: white; padding: 16px; width: 85%; text-align:center; margin-bottom: 2px;">
+            <h3>Objetivos</h3><p>Variables concretas (Pleno empleo, Control inflación)</p>
+          </div>
+          <div style="background: var(--accent-secondary); color: white; padding: 16px; width: 70%; text-align:center; border-radius: 0 0 8px 8px;">
+            <h3>Metas</h3><p>Cuantificadas y fechadas (Inflación un dígito al cierre anual)</p>
+          </div>
+        </div>
+        <div class="split-half">
+          <div class="card" style="margin-left: 32px;">
+            <h3 class="card-title text-accent">Conflicto de Objetivos (Curva de Phillips)</h3>
+            <p class="card-text">Estabilidad de precios vs. Expansión del empleo.<br><br><b>La jerarquía revela prioridades:</b> Decidir cuánto empleo se sacrifica para estabilizar (Contexto Bolivia 2026).</p>
+          </div>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Puede un gobierno prometer al mismo tiempo bajar la inflación, crear empleo, estabilizar el dólar y aumentar gasto social? Si no, ¿quién decide qué cede?</p>
+      </div>
+    </div>
+
+    <!-- Slide 10: 2.2 (La regla de Tinbergen) -->
+    <div class="slide-container" id="slide10">
+      <h2 class="slide-title">2.2. Relación Objetivos-Instrumentos (Tinbergen)</h2>
+      <div class="flex-grow center-all">
+        <div style="background: var(--bg-light-gray); padding: 40px; border-radius: 16px; text-align: center; border: 2px dashed var(--accent);">
+          <p class="big-number-val" style="font-size: 64px;">Nº Instrumentos ≥ Nº Objetivos</p>
+          <p class="big-number-label">La Regla de Jan Tinbergen</p>
+        </div>
+        <div style="display: flex; gap: 32px; margin-top: 40px; width: 100%;">
+          <div class="card">
+            <h3 class="card-title">Principio de Asignación (Mundell)</h3>
+            <p class="card-text">Cada instrumento debe asignarse al objetivo sobre el cual tiene mayor impacto. (Ej: Tasa de interés para inflación, gasto para estímulo).</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Límites Prácticos</h3>
+            <p class="card-text">Falta de información perfecta, cambios de expectativas en agentes (Crítica de Lucas) y restricciones legales.</p>
+          </div>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Puede un solo instrumento, como la subvención a combustibles, servir a la vez para controlar inflación, proteger pobres y estimular producción?</p>
+      </div>
+    </div>
+
+    <!-- Slide 11: 2.3 -->
+    <div class="slide-container" id="slide11">
+      <h2 class="slide-title">2.3. Modo de elaboración y planificación</h2>
+      <div class="flex-grow col-center">
+        <!-- Mapa Conceptual Horizontal -->
+        <div class="row-center" style="height: auto; margin-bottom: 40px;">
+          <div class="concept-node">1. Agenda</div>
+          <div class="concept-line"></div>
+          <div class="concept-node">2. Decisión</div>
+          <div class="concept-line"></div>
+          <div class="concept-node">3. Ejecución</div>
+          <div class="concept-line"></div>
+          <div class="concept-node">4. Evaluación</div>
+        </div>
+        
+        <div class="row-center" style="align-items: stretch; height: auto;">
+          <div class="card">
+            <h3 class="card-title">Modelos de Decisión</h3>
+            <p class="card-text"><b>Racional vs Incremental:</b> "Salir del paso" (Lindblom) vs Decisiones de ruptura (Ej: DS 21060 en 1985 o ajuste en 2026).</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Sistema de Planificación (Ley 777)</h3>
+            <p class="card-text">Planes jerarquizados (PGDES, PDES, PTDI, PEI). Si cambia la orientación nacional, las entidades territoriales deben adecuarse.</p>
+          </div>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Se diseñan como proyecto de ingeniería racional, o se construyen paso a paso negociando (y corrigiendo) sobre la marcha?</p>
+      </div>
+    </div>
+
+    <!-- Slide 12: 2.4 -->
+    <div class="slide-container" id="slide12">
+      <h2 class="slide-title">2.4. Coordinación de la política económica</h2>
+      <div class="flex-grow row-center">
+        <div class="card">
+          <i class="fa-solid fa-sliders card-icon"></i>
+          <h3 class="card-title">1. Entre Instrumentos</h3>
+          <p class="card-text">Evitar que políticas fiscales y monetarias se neutralicen. (Ej: Expansión vs Contracción simultánea).</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-building-columns card-icon"></i>
+          <h3 class="card-title">2. Institucional</h3>
+          <p class="card-text">Órgano Ejecutivo y Banco Central. La CPE boliviana opta por <i>coordinación</i>, no independencia absoluta (Programa Fiscal Financiero).</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-map-location-dot card-icon"></i>
+          <h3 class="card-title">3. Territorial</h3>
+          <p class="card-text">Ciclos económicos subnacionales; municipios actúan "en el marco de las políticas nacionales".</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> Si el Ministerio gasta para reactivar y el BCB retira liquidez para frenar inflación, ¿quién gana?</p>
+      </div>
+    </div>
+
+    <!-- Slide 13: 2.5 -->
+    <div class="slide-container" id="slide13">
+      <h2 class="slide-title">2.5. La dimensión temporal y credibilidad</h2>
+      <div class="flex-grow split-layout">
+        <div class="split-half">
+          <div class="card" style="border-left: 6px solid var(--accent); margin-bottom: 16px; flex: none;">
+            <h3 class="card-title" style="margin-bottom: 8px;">Retardos Internos</h3>
+            <p class="card-text">Demora institucional en reconocer el problema y tomar decisión. (Ej: Años de escasez antes del cambio de régimen cambiario).</p>
+          </div>
+          <div class="card" style="border-left: 6px solid var(--text-main); flex: none;">
+            <h3 class="card-title" style="margin-bottom: 8px;">Retardos Externos</h3>
+            <p class="card-text">Demora en que el mercado refleje los impactos tras aplicar la medida.</p>
+          </div>
+        </div>
+        <div class="split-half">
+          <h3 style="font-size: 28px; margin-bottom: 16px;">Inconsistencia Temporal</h3>
+          <p style="font-size: 18px; margin-bottom: 16px;">(Kydland y Prescott). Una política óptima anunciada hoy, deja de serlo cuando los agentes adaptan su conducta, generando incentivos para que el gobierno cambie las reglas.</p>
+          <h3 style="font-size: 24px; color: var(--accent); margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> La Credibilidad es un Activo</h3>
+          <p style="font-size: 18px;">El DS 748 (2010) revirtió la medida ante presión; el DS 5516 (2026) cedió en la forma jurídica pero mantuvo el ajuste.</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Por qué medidas correctas fracasan por llegar tarde? ¿Es mejor atarse las manos con reglas o conservar libertad?</p>
+      </div>
+    </div>
+
+    <!-- Slide 14: 2.6 -->
+    <div class="slide-container" id="slide14">
+      <h2 class="slide-title">2.6. Grupos de presión e influencia</h2>
+      <div class="flex-grow split-layout">
+        <div class="split-half" style="padding-left: 0;">
+          <ul class="bullet-list">
+            <li class="bullet-item"><i class="fa-solid fa-users-gear bullet-icon"></i> <span><b>Búsqueda de rentas:</b> (Krueger) Agentes dedican recursos a competir por privilegios estatales en lugar de producir.</span></li>
+            <li class="bullet-item"><i class="fa-solid fa-ban bullet-icon"></i> <span><b>Poder de veto:</b> Bloqueo mediante fuerza (paros, bloqueos) que paralizan decisiones.</span></li>
+            <li class="bullet-item"><i class="fa-solid fa-comment-dots bullet-icon"></i> <span><b>Control social:</b> Participación institucionalizada (CPE Art. 241).</span></li>
+          </ul>
+        </div>
+        <div class="split-half card" style="background: var(--bg-dark); justify-content: center;">
+          <h3 class="text-white" style="font-size: 28px; margin-bottom: 16px;">La Lógica de la Acción Colectiva (Olson)</h3>
+          <p class="text-white" style="font-size: 20px; opacity: 0.9; line-height: 1.6;">Los grupos <b>pequeños con beneficios concentrados</b> se organizan rápidamente y son más efectivos frente a los grupos <b>grandes con costos difusos</b> (los consumidores).</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Por qué un grupo pequeño organizado bloquea medidas de beneficio general? ¿Es una distorsión o participación legítima?</p>
+      </div>
+    </div>
+
+    <!-- Slide 15: Sección 3 -->
+    <div class="slide-container bg-light-gray center-all" id="slide15">
+      <p class="eyebrow">Bloque Temático</p>
+      <h2 style="font-size: 48px; font-weight: 800; text-align: center; max-width: 900px;">
+        3. La política de empleo
+      </h2>
+      <div class="accent-line"></div>
+    </div>
+
+    <!-- Slide 16: 3.1 -->
+    <div class="slide-container" id="slide16">
+      <h2 class="slide-title">3.1. Medición y rasgos del mercado boliviano</h2>
+      <div class="flex-grow row-center">
+        <div class="col-center" style="flex: 1;">
+          <p class="big-number-val" style="color: var(--text-main); font-size: 70px;">3.4%</p>
+          <p class="big-number-label">Desocupación (T2 2026)</p>
+          <p style="text-align: center; margin-top: 16px;">Una de las más bajas, pero engañosa: sin seguro, pocos pueden "esperar".</p>
+        </div>
+        <div style="width: 2px; height: 160px; background: var(--line-color);"></div>
+        <div class="col-center" style="flex: 1;">
+          <p class="big-number-val" style="font-size: 70px;">69.7%</p>
+          <p class="big-number-label">Informalidad Urbana</p>
+          <p style="text-align: center; margin-top: 16px;">(Est. BCB). Subocupación de 8.21%. El problema real es precariedad y bajos ingresos.</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> Si Bolivia ha tenido tasas de desocupación muy bajas, ¿significa que el mercado laboral funciona bien? ¿Qué oculta el número?</p>
+      </div>
+    </div>
+
+    <!-- Slide 17: 3.2 (Flip Cards Teóricos) -->
+    <div class="slide-container" id="slide17">
+      <h2 class="slide-title">3.2. Teorías sobre el Desempleo</h2>
+      <div class="flex-grow row-center" style="gap: 24px;">
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <h3 class="card-title text-accent">Clásica</h3>
+            </div>
+            <div class="flip-card-back">
+              <p>Desempleo por salarios rígidos. Solución: Flexibilizar mercado laboral.</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <h3 class="card-title text-accent">Keynesiana</h3>
+            </div>
+            <div class="flip-card-back">
+              <p>Demanda agregada insuficiente (cíclico). Solución: Gasto público y política monetaria.</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <h3 class="card-title text-accent">Estructuralista</h3>
+            </div>
+            <div class="flip-card-back">
+              <p>Heterogeneidad productiva (CEPAL). Sector extractivo no absorbe mano de obra, generando masa informal.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> Si el problema fueran los salarios, bastaría bajarlos. Si fuera la demanda, gastar más. ¿Por qué no bastan estas recetas en Bolivia?</p>
+      </div>
+    </div>
+
+    <!-- Slide 18: 3.3 -->
+    <div class="slide-container" id="slide18">
+      <h2 class="slide-title">3.3. Instrumentos de política de empleo</h2>
+      <div class="flex-grow row-center" style="align-items: stretch;">
+        <div class="card">
+          <i class="fa-solid fa-handshake card-icon"></i>
+          <h3 class="card-title">Políticas Pasivas</h3>
+          <p class="card-text">Protegen ingresos de quien pierde empleo. (Ej: Indemnización. En Bolivia se centra en formales y encarece despido).</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-person-digging card-icon"></i>
+          <h3 class="card-title">Políticas Activas</h3>
+          <p class="card-text">Facilitan inserción: capacitación, intermediación, programas de empleo temporal municipal o nacional.</p>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-gavel card-icon"></i>
+          <h3 class="card-title">Regulación</h3>
+          <p class="card-text">Salario mínimo y normativas (DS 21060 vs DS 28699). Un salario muy alto en alta informalidad puede desplazar formales.</p>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿Es mejor proteger al que perdió su empleo o ayudarle a encontrar otro? ¿Quién debe ejecutarlo: Nivel central, gobernación o municipio?</p>
+      </div>
+    </div>
+
+    <!-- Slide 19: 3.4 -->
+    <div class="slide-container" id="slide19">
+      <h2 class="slide-title">3.4. Fundamentos, trayectoria y desafíos (Bolivia)</h2>
+      <div class="flex-grow split-layout">
+        <div class="split-half">
+          <h3 style="margin-bottom:16px;">Mandato Constitucional (Art. 54)</h3>
+          <p style="margin-bottom: 24px;">Obliga al Estado a establecer políticas para evitar desocupación <b>y subocupación</b>. La jurisprudencia (TCP) ha blindado la "estabilidad laboral".</p>
+          <h3 style="margin-bottom:16px;">Tensión Histórica</h3>
+          <p>El péndulo entre Flexibilización (DS 21060) y Protección (DS 28699). Protege al formal pero deja vulnerable al informal.</p>
+        </div>
+        <div class="split-half card" style="background: var(--bg-light-gray); justify-content: center;">
+          <h3 class="card-title text-accent">4 Desafíos Actuales (2026)</h3>
+          <ol style="margin-left: 20px; font-size: 18px; line-height: 1.6; color: var(--text-main);">
+            <li><b>Diagnóstico:</b> Medir subutilización, no solo desempleo.</li>
+            <li><b>Coherencia:</b> Mitigar costos de ajuste macroeconómico.</li>
+            <li><b>Instrumentos:</b> Extender protección a informales sin castigar creación de empleo.</li>
+            <li><b>Coordinación territorial:</b> Alinear municipios con política nacional.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="pregunta-detonante">
+        <i class="fa-solid fa-circle-question"></i>
+        <p><b>Pregunta detonante:</b> ¿El mandato constitucional es exigible o programático? ¿Cómo se concilia con una abrumadora mayoría informal?</p>
+      </div>
+    </div>
+
+    <!-- Slide 20: Cierre -->
+    <div class="slide-container bg-dark center-all" id="slide20">
+      <i class="fa-solid fa-graduation-cap text-accent" style="font-size: 64px; margin-bottom: 24px;"></i>
+      <h2 class="text-white" style="font-size: 56px; font-weight: 800; text-align: center;">
+        Preguntas para la discusión de cierre
+      </h2>
+      <div class="accent-line"></div>
+      <p style="font-size: 24px; color: #94a3b8; text-align: center; max-width: 700px; margin-top: 16px;">
+        Análisis de casos: DS 5516, reglas de Tinbergen y diseño de políticas subnacionales.
+      </p>
+    </div>
+
+    <!-- Controles de Navegación -->
+    <div class="controls-container">
+      <button class="control-btn" onclick="prev()" title="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="control-btn" onclick="next()" title="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+  </div>
+
+  <script>
+    // Variables de estado
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide-container');
+    const totalSlides = slides.length;
+    let isLaserActive = false;
+    let isVivid = false;
+    
+    // Navegación de Diapositivas
+    function updateSlides() {
+      slides.forEach((slide, index) => {
+        if (index === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+    }
+
+    function next() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlides();
+      }
+    }
+
+    function prev() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlides();
+      }
+    }
+
+    // Teclado
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        next();
+      } else if (e.key === 'ArrowLeft') {
+        prev();
+      }
+    });
+
+    // Tema Toggle
+    function toggleTheme() {
+      isVivid = !isVivid;
+      const body = document.body;
+      const btn = document.getElementById('btn-theme');
+      
+      if(isVivid) {
+        body.classList.add('theme-vivid');
+        btn.innerHTML = '<i class="fa-solid fa-eraser"></i> Modo Clásico';
+      } else {
+        body.classList.remove('theme-vivid');
+        btn.innerHTML = '<i class="fa-solid fa-palette"></i> Modo Vívido';
+      }
+    }
+
+    // Láser Toggle
+    function toggleLaser() {
+      isLaserActive = !isLaserActive;
+      const body = document.body;
+      const btn = document.getElementById('btn-laser');
+      
+      if (isLaserActive) {
+        body.classList.add('laser-active');
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Apagar Láser';
+      } else {
+        body.classList.remove('laser-active');
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="fa-solid fa-arrow-pointer"></i> Activar Láser';
+      }
+    }
+
+    // Movimiento Láser
+    const laserPointer = document.getElementById('laser-pointer');
+    document.addEventListener('mousemove', (e) => {
+      if(isLaserActive) {
+        laserPointer.style.left = e.clientX + 'px';
+        laserPointer.style.top = e.clientY + 'px';
+      }
+    });
+
+  </script>
+</body></html>
